@@ -1,0 +1,37 @@
+name: Test Release SHA
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.target_commitish }}
+
+      - name: Dump all SHA values
+        run: |
+          echo "=== github context ==="
+          echo "github.sha:                        ${{ github.sha }}"
+          echo "github.ref:                        ${{ github.ref }}"
+          echo "github.event.release.tag_name:     ${{ github.event.release.tag_name }}"
+          echo "github.event.release.target_commitish: ${{ github.event.release.target_commitish }}"
+
+          echo ""
+          echo "=== git resolved values ==="
+          echo "git rev-parse HEAD (branch head):  $(git rev-parse HEAD)"
+          echo "git rev-list -n1 tag:              $(git rev-list -n 1 ${{ github.ref }})"
+
+          echo ""
+          echo "=== comparison ==="
+          tag_sha="${{ github.sha }}"
+          branch_sha="$(git rev-parse HEAD)"
+          resolved_tag="$(git rev-list -n 1 ${{ github.ref }})"
+
+          echo "github.sha == branch HEAD?         $([ "$tag_sha" = "$branch_sha" ] && echo YES || echo NO)"
+          echo "github.sha == resolved tag?        $([ "$tag_sha" = "$resolved_tag" ] && echo YES || echo NO)"
+          echo "resolved tag == branch HEAD?       $([ "$resolved_tag" = "$branch_sha" ] && echo YES || echo NO)"
