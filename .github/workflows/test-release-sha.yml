@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.release.target_commitish }}
+          ref: ${{ github.event.release.tag_name }}
 
       - name: Dump all SHA values
         run: |
@@ -23,15 +23,12 @@ jobs:
 
           echo ""
           echo "=== git resolved values ==="
-          echo "git rev-parse HEAD (branch head):  $(git rev-parse HEAD)"
+          echo "git rev-parse HEAD (checked out):  $(git rev-parse HEAD)"
           echo "git rev-list -n1 tag:              $(git rev-list -n 1 ${{ github.ref }})"
 
           echo ""
           echo "=== comparison ==="
-          tag_sha="${{ github.sha }}"
-          branch_sha="$(git rev-parse HEAD)"
+          head_sha="$(git rev-parse HEAD)"
           resolved_tag="$(git rev-list -n 1 ${{ github.ref }})"
 
-          echo "github.sha == branch HEAD?         $([ "$tag_sha" = "$branch_sha" ] && echo YES || echo NO)"
-          echo "github.sha == resolved tag?        $([ "$tag_sha" = "$resolved_tag" ] && echo YES || echo NO)"
-          echo "resolved tag == branch HEAD?       $([ "$resolved_tag" = "$branch_sha" ] && echo YES || echo NO)"
+          echo "HEAD == resolved tag?              $([ "$head_sha" = "$resolved_tag" ] && echo YES || echo NO)"
